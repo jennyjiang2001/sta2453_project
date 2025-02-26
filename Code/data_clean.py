@@ -1,59 +1,13 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-
-# In[2]:
-
-
-data_folders = {
-    "HURON": "./HURONOvlerap_csv",  
-    "SIMC": "./SIMCOverlap_csv"    
-}
-
-categories = ["Calanoid_1", "Cyclopoid_1", "Bosmina_1", 
-              "Harpacticoida", "Chironomid", "Chydoridae", "Daphnia"]
-
-category_counts = {category: {"HURON": 0, "SIMC": 0} for category in categories}
-
-for folder_name, folder_path in data_folders.items():
-    for file_name in os.listdir(folder_path):
-        if file_name.endswith(".csv"):
-            file_path = os.path.join(folder_path, file_name)
-            df = pd.read_csv(file_path)
-
-            if "Class" in df.columns:
-
-                for category in categories:
-                    count = df[df["Class"] == category].shape[0]
-                    category_counts[category][folder_name] += count
-
-for category, counts in category_counts.items():
-    print(f"{category}:")
-    print(f"  HURON: {counts['HURON']}")
-    print(f"  SIMC: {counts['SIMC']}")
-    print()
-
-
-# ## filter target classes entries & add file time in the first column
-
-# In[3]:
-
-
+# ## target_classes for the classification model
 target_classes = ["Calanoid_1", "Cyclopoid_1"]
 
-
-# In[4]:
-
-
+# ## retain target classes observations and add file name in the first column
 def combine_filtered_data(input_folder, output_file, target_classes):
     combined_data = pd.DataFrame()
 
@@ -80,9 +34,6 @@ combine_filtered_data("./SIMCOverlap_csv", "./combined_filtered_data_SIMC.csv", 
 
 # ## keep distinct entries in MasterTable
 
-# In[5]:
-
-
 file_path = "MasterTable_AI_FlowCAM.xlsx"
 master_table = pd.read_excel(file_path)
 
@@ -96,11 +47,6 @@ print(f"# distinct rows in updated MasterTable: {len(master_table_distinct)} ")
 
 
 # ## use "tifffile & csvfile" as key to add MasterTable variables
-
-# In[6]:
-
-
-import pandas as pd
 
 file_path = "MasterTable_Distinct.xlsx"
 master_table = pd.read_excel(file_path)
@@ -122,9 +68,6 @@ else:
 
 
 # ### find variables with different entries in unique combination
-
-# In[7]:
-
 
 file_path = "MasterTable_Distinct.xlsx"
 master_table = pd.read_excel(file_path)
@@ -159,17 +102,12 @@ else:
 
 # ### drop 'YPerchDen', updateMasterTable, and join to lake csv
 
-# In[8]:
-
-
-import pandas as pd
-
 master_table = pd.read_excel("MasterTable_Distinct.xlsx")
 
 if 'YPerchDen' in master_table.columns:
     master_table.drop(columns=['YPerchDen'], inplace=True)
 
-master_table_unique = master_table.drop_duplicates(subset=["tifffile", "csvfile"])  # 不保留 first, 现在应该唯一
+master_table_unique = master_table.drop_duplicates(subset=["tifffile", "csvfile"])  
 
 simc_data = pd.read_csv("combined_filtered_data_SIMC.csv")
 huron_data = pd.read_csv("combined_filtered_data_HURON.csv")
@@ -199,9 +137,6 @@ print("files saved with row number unchanged")
 
 # ## remove rows with no MasterTable information (use 'SITE')
 
-# In[4]:
-
-
 files = ["SIMC_Merged_With_Master_YPerchDen_Drop.csv", "HURON_Merged_With_Master_YPerchDen_Drop.csv"]
 
 for file in files:
@@ -223,9 +158,6 @@ for file in files:
 
 
 # ## variable list check
-
-# In[10]:
-
 
 file_path = "MasterTable_Distinct.xlsx"  
 df = pd.read_excel(file_path) 
@@ -293,39 +225,7 @@ print(f"file : {file_path}")
 print(f"# row: {num_entries}")
 print(f"variables ({len(columns)}): {columns}")
 
-
-# ## variable list (not finalized)
-
-# In[3]:
-
-
-geometric_features = ['Area..ABD.', 'Area..Filled.', 'Diameter..ABD.', 'Diameter..ESD.', 'Diameter..FD.',
-                      'Length','Width', 'Perimeter', 'Volume..ABD.', 'Volume..ESD.', 'Geodesic.Length', 
-                      'Geodesic.Thickness']
-
-shape_features = ['Aspect.Ratio', 'Circle.Fit', 'Circularity', 'Circularity..Hu.', 'Compactness', 
-                  'Convex.Perimeter', 'Convexity', 'Fiber.Curl', 'Fiber.Straightness', 
-                  'Geodesic.Aspect.Ratio', 'Intensity', 'Roughness', 'Elongation', 'Symmetry']
-
-optical_features = ['Edge.Gradient', 'Intensity','Sigma.Intensity', 'Sum.Intensity', 'Transparency']
-
-environmental_features = ['gdd2', 'WaterT', 'avgdepth', 'MinDepth', 'MaxDepth', 'CLOUD_PC', 'PRECIP', 
-                          'distshore', 'Exposure', 'XANGLE', 'XWAVEHT']
-
-sampling_features = ['SITE', 'Loc', 'LAT0', 'LAT1', 'LON0', 'LON1']
-
-biological_features = ['WhitefishDen', 'UnknwCoregonine', 'CiscoDen', 'SmeltDen', 'BurbotDen', 
-                       'OtherFishDen']
-
-sum_features = geometric_features + shape_features + optical_features + environmental_features + sampling_features + biological_features
-
-print(len(sum_features))
-
-
 # ## HURON
-
-# In[4]:
-
 
 file_path = "Cleaned_HURON_Merged_With_Master_YPerchDen_Drop.csv"  
 df = pd.read_csv(file_path)
@@ -343,9 +243,6 @@ print(f"row count: {len(df)}")
 
 # ## SIMC
 
-# In[5]:
-
-
 file_path = "Cleaned_SIMC_Merged_With_Master_YPerchDen_Drop.csv"  
 df = pd.read_csv(file_path)
 
@@ -359,18 +256,12 @@ print(f"saved as `{output_file}`")
 print(f"variable count {len(df.columns)}")
 print(f"row count: {len(df)}")
 
-
-# # Datasets for Predictor Selection
-# # "HURON_Predictor_Selection_Dataset.csv"
-# # "SIMC_Predictor_Selection_Dataset.csv"
-
-# In[1]:
-
-
 import shutil
 
 shutil.copy("HURON_Predictor_Selection_Dataset.csv", "final_HURON.csv")
 shutil.copy("SIMC_Predictor_Selection_Dataset.csv", "final_SIMC.csv")
 
 print("Files duplicated successfully as final_HURON.csv and final_SIMC.csv")
+
+# ## files used for EDA and predictor selection: final_HURON.csv, final_SIMC.csv
 
