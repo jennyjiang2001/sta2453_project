@@ -265,3 +265,57 @@ print("Files duplicated successfully as final_HURON.csv and final_SIMC.csv")
 
 # ## files used for EDA and predictor selection: final_HURON.csv, final_SIMC.csv
 
+# ## split data for model training
+from sklearn.model_selection import train_test_split
+
+SEED = 77 
+
+file_huron = "final_HURON.csv"
+file_simc = "final_SIMC.csv"
+
+df_huron = pd.read_csv(file_huron)
+df_simc = pd.read_csv(file_simc)
+
+target_col = 'Class'  
+
+def encode_target(df):
+    df[target_col] = df[target_col].map({"Calanoid_1": 0, "Cyclopoid_1": 1})
+    return df
+
+df_huron = encode_target(df_huron)
+df_simc = encode_target(df_simc)
+
+def split_and_save(df, lake_name):
+    print(f"\nSplitting dataset for {lake_name}...")
+
+    X = df.drop(columns=[target_col])  
+    y = df[[target_col]]  
+    
+    X_train, X_rest, y_train, y_rest = train_test_split(
+        X, y, test_size=0.4, random_state=SEED, shuffle=True
+    )
+
+    X_val, X_test, y_val, y_test = train_test_split(
+        X_rest, y_rest, test_size=0.5, random_state=SEED, shuffle=True
+    )
+
+    X_train.to_csv(f"{lake_name}_input_train.csv", index=False)
+    X_val.to_csv(f"{lake_name}_input_validate.csv", index=False)
+    X_test.to_csv(f"{lake_name}_input_test.csv", index=False)
+
+    y_train.to_csv(f"{lake_name}_output_train.csv", index=False)
+    y_val.to_csv(f"{lake_name}_output_validate.csv", index=False)
+    y_test.to_csv(f"{lake_name}_output_test.csv", index=False)
+
+    print(f"{lake_name} dataset split completed and saved!")
+
+split_and_save(df_huron, "HURON")
+split_and_save(df_simc, "SIMC")
+
+
+# ## files used for model training: 
+# ## HURON_input_train.csv, HURON_input_validate.csv, HURON_input_test, HURON_ouput_train.csv, HURON_ouput_validate.csv, HURON_ouput_test
+# ## SIMC_input_train.csv, SIMC_input_validate.csv, SIMC_input_test, SIMC_ouput_train.csv, SIMC_ouput_validate.csv, SIMC_ouput_test
+
+
+
