@@ -1,81 +1,19 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import mean_squared_error
-
-# # Hyperparameter Tuning Process
-def train_random_forest(lake_name):
-    
-    predictors = {
-        "HURON": [
-            'Area..Filled.', 'Diameter..FD.', 'Length', 'Width', 'LON0', 'Transparency',
-            'Volume..ESD.', 'MinDepth', 'LAT0', 'Aspect.Ratio', 'CiscoDen', 'Circularity',
-            'WaterT', 'Intensity', 'Symmetry', 'Roughness', 'gdd2', 'CLOUD_PC', 'Geodesic.Length',
-            'Compactness', 'Elongation', 'Perimeter', 'Volume..ABD.', 'Edge.Gradient',
-            'Convex.Perimeter', 'Convexity', 'Fiber.Straightness', 'Fiber.Curl', 'PRECIP',
-            'distshore', 'XANGLE'
-        ],
-        "SIMC": [
-            'Area..ABD.', 'LON0', 'Length', 'Width', 'MaxDepth', 'Transparency', 'Symmetry',
-            'WaterT', 'Aspect.Ratio', 'Diameter..ABD.', 'Compactness', 'Elongation', 'Roughness',
-            'Convex.Perimeter', 'Intensity', 'Fiber.Straightness', 'Circularity', 'Volume..ESD.',
-            'Volume..ABD.', 'gdd2', 'Perimeter', 'Geodesic.Length', 'Edge.Gradient', 'WhitefishDen',
-            'LAT0', 'XANGLE', 'PRECIP', 'distshore', 'Exposure', 'Convexity', 'Fiber.Curl'
-        ]
-    }
-
-    # Load datasets
-    input_train = pd.read_csv(f"{lake_name}_input_train.csv", index_col=0)
-    input_validate = pd.read_csv(f"{lake_name}_input_validate.csv", index_col=0)
-    output_train = pd.read_csv(f"{lake_name}_output_train.csv")[["Class"]]
-    output_validate = pd.read_csv(f"{lake_name}_output_validate.csv")[["Class"]]
-
-    selected_predictors = predictors[lake_name]
-    input_train = input_train[selected_predictors]
-    input_validate = input_validate[selected_predictors]
-
-    input_train.fillna(input_train.mean(), inplace=True)
-    input_validate.fillna(input_validate.mean(), inplace=True)
-
-    param_grid = {
-        "n_estimators": [50, 100, 200, 250, 300, 350, 400, 500],
-        "max_depth": [5, 10, 15, 20, 25, 30]
-    }
-
-    best_mse = float("inf")
-    best_params = {}
-
-    for n_estimators in param_grid["n_estimators"]:
-        for max_depth in param_grid["max_depth"]:
-            rf_model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
-            rf_model.fit(input_train, output_train.values.ravel())
-            y_validate_pred = rf_model.predict(input_validate)
-            mse = mean_squared_error(output_validate, y_validate_pred)
-
-            print(f"{lake_name}: Estimators={n_estimators}, Depth={max_depth} | MSE={mse:.6f}")
-
-            if mse < best_mse:
-                best_mse = mse
-                best_params = {
-                    "n_estimators": n_estimators,
-                    "max_depth": max_depth
-                }
-
-    print(f"\nBest Hyperparameters for {lake_name}: {best_params} | Best MSE: {best_mse:.6f}\n")
-    return best_params
-
-if __name__ == "__main__":
-    print("\nTraining for HURON...")
-    best_params_huron = train_random_forest("HURON")
-    
-    #print("\nTraining for SIMC...")
-    #best_params_simc = train_random_forest("SIMC")
-
-
-# # Using the best parameter
-from sklearn.metrics import accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
+
+
+# In[4]:
+
 
 def train_and_evaluate(lake_name, best_params):
     
@@ -117,7 +55,7 @@ def train_and_evaluate(lake_name, best_params):
     input_test.fillna(input_test.mean(), inplace=True)
 
     # Train model using best hyperparameters
-    print(f"\nTraining model for {lake_name} with {best_para›ms}...")
+    print(f"\nTraining model for {lake_name} with {best_params}...")
     rf_model = RandomForestClassifier(n_estimators=best_params["n_estimators"], 
                                       max_depth=best_params["max_depth"], 
                                       random_state=42)
@@ -156,6 +94,12 @@ def train_and_evaluate(lake_name, best_params):
 
 if __name__ == "__main__":
     
+#     grid search
+#     param_grid = {
+#         "n_estimators": [50, 100, 200, 250, 300, 350, 400, 500],
+#         "max_depth": [5, 10, 15, 20, 25, 30]
+#     }
+    
     huron_best_params = {"n_estimators": 250, "max_depth": 20}
     print("\nEvaluating HURON...")
     train_and_evaluate("HURON", huron_best_params)
@@ -164,6 +108,9 @@ if __name__ == "__main__":
 
     print("\nEvaluating SIMC...")
     train_and_evaluate("SIMC", simc_best_params)
+
+
+# In[ ]:
 
 
 
