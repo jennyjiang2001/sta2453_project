@@ -1,19 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
-
-
-# In[4]:
-
 
 def train_and_evaluate(lake_name, best_params):
     
@@ -109,8 +99,6 @@ if __name__ == "__main__":
     print("\nEvaluating SIMC...")
     train_and_evaluate("SIMC", simc_best_params)
 
-
-# In[ ]:
 
 
 
