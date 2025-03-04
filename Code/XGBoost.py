@@ -1,25 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-get_ipython().system('pip install xgboost')
-
-
-# In[2]:
-
-
 import pandas as pd
 import numpy as np
 import xgboost as xgb
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error
-
-
-# In[3]:
-
 
 def train_xgb_for_lakes(lake_name):
     
@@ -125,10 +109,3 @@ if __name__ == "__main__":
     
     print("\nTraining for SIMC...")
     model_simc = train_xgb_for_lakes("SIMC")
-
-
-# In[ ]:
-
-
-
-
