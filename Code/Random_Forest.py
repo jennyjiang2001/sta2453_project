@@ -1,18 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[8]:
-
-
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import mean_squared_error
 
-
-# In[9]:
-
-
+# # Hyperparameter Tuning Process
 def train_random_forest(lake_name):
     
     predictors = {
@@ -82,22 +73,9 @@ if __name__ == "__main__":
 
 
 # # Using the best parameter
-
-# In[10]:
-
-
 from sklearn.metrics import accuracy_score, f1_score
-
-
-# In[3]:
-
-
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
 
 def train_and_evaluate(lake_name, best_params):
     
@@ -186,9 +164,6 @@ if __name__ == "__main__":
 
     print("\nEvaluating SIMC...")
     train_and_evaluate("SIMC", simc_best_params)
-
-
-# In[ ]:
 
 
 
