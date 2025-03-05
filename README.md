@@ -5,6 +5,7 @@ Zooplankton are important bioindicators of freshwater ecosystem health, while ma
 
 ## Goal
 This project aims to develop a machine learning-based classification model to distinguish between two visually similar zooplankton species: **Calanoid_1** and **Cyclopoid_1**.
+
 ![image](https://github.com/user-attachments/assets/5054921c-d9e6-484c-8dc7-5507064cdbd1)
 
 ## Data
