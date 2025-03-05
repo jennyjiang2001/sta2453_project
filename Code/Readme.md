@@ -1,16 +1,9 @@
-# Lake = HURON, SIMC
-`final_&Lake.csv`          The complete dataset for Lake Huron before splitting into training, validation, and test sets. Contains all predictor variables and target labels (Class).
+# Code Folder
 
-`&Lake_input_train.csv`	    Predictor variables for training.
+This folder contains code related to data processing and machine learning model training.
 
-`&Lake_input_validate.csv`	Predictor variables for validation.
+## Contents
 
-`&Lake_input_test.csv`	    Predictor variables for testing.
-
-`&Lake_output_train.csv`	  Target variable (Class) for training.
-
-`&Lake_output_validate.csv`	Target variable (Class) for validation.
-
-`&Lake_output_test.csv`	    Target variable (Class) for testing.
-
-
+- `data_cleaning/` - COde for preprocessing and cleaning raw datasets.
+- `random_forest/` - Code for training and evaluating the Random Forest model.
+- `xgboost/` - Code for training and evaluating the XGBoost model.
