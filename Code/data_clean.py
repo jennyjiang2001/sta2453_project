@@ -1,29 +1,16 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-
+import shutil
+from sklearn.model_selection import train_test_split
 
 # ## target_classes for the classification model
-
-# In[3]:
-
-
 target_classes = ["Calanoid_1", "Cyclopoid_1"]
 
 
 # ## retain target classes observations and add file name in the first column
-
-# In[4]:
-
-
 def combine_filtered_data(input_folder, output_file, target_classes):
     combined_data = pd.DataFrame()
 
@@ -49,10 +36,6 @@ combine_filtered_data("./SIMCOverlap_csv", "./combined_filtered_data_SIMC.csv", 
 
 
 # ## keep distinct entries in MasterTable
-
-# In[5]:
-
-
 file_path = "MasterTable_AI_FlowCAM.xlsx"
 master_table = pd.read_excel(file_path)
 
@@ -66,10 +49,6 @@ print(f"# distinct rows in updated MasterTable: {len(master_table_distinct)} ")
 
 
 # ## use "tifffile & csvfile" as key to add MasterTable variables
-
-# In[6]:
-
-
 file_path = "MasterTable_Distinct.xlsx"
 master_table = pd.read_excel(file_path)
 
@@ -90,10 +69,6 @@ else:
 
 
 # ### find variables with different entries in unique combination
-
-# In[7]:
-
-
 file_path = "MasterTable_Distinct.xlsx"
 master_table = pd.read_excel(file_path)
 
@@ -126,10 +101,6 @@ else:
 
 
 # ### drop 'YPerchDen', updateMasterTable, and join to lake csv
-
-# In[8]:
-
-
 master_table = pd.read_excel("MasterTable_Distinct.xlsx")
 
 if 'YPerchDen' in master_table.columns:
@@ -164,10 +135,6 @@ print("files saved with row number unchanged")
 
 
 # ## remove rows with no MasterTable information (use 'SITE')
-
-# In[4]:
-
-
 files = ["SIMC_Merged_With_Master_YPerchDen_Drop.csv", "HURON_Merged_With_Master_YPerchDen_Drop.csv"]
 
 for file in files:
@@ -189,10 +156,6 @@ for file in files:
 
 
 # ## Prepare final dataset
-
-# In[4]:
-
-
 geometric_features = ['Area..ABD.', 'Area..Filled.', 'Diameter..ABD.', 'Diameter..ESD.', 'Diameter..FD.',
                       'Length','Width', 'Perimeter', 'Volume..ABD.', 'Volume..ESD.', 'Geodesic.Length', 
                       'Geodesic.Thickness']
@@ -214,10 +177,6 @@ biological_features = ['WhitefishDen', 'UnknwCoregonine', 'CiscoDen', 'SmeltDen'
 sum_features = geometric_features + shape_features + optical_features + environmental_features + sampling_features + biological_features
 
 print(len(sum_features))
-
-
-# In[5]:
-
 
 file_path = "Cleaned_HURON_Merged_With_Master_YPerchDen_Drop.csv"  
 df = pd.read_csv(file_path)
@@ -245,12 +204,6 @@ print(f"saved as `{output_file}`")
 print(f"variable count {len(df.columns)}")
 print(f"row count: {len(df)}")
 
-
-# In[1]:
-
-
-import shutil
-
 shutil.copy("HURON_Predictor_Selection_Dataset.csv", "final_HURON.csv")
 shutil.copy("SIMC_Predictor_Selection_Dataset.csv", "final_SIMC.csv")
 
@@ -258,12 +211,6 @@ print("Files duplicated successfully as final_HURON.csv and final_SIMC.csv")
 
 
 # ## Split for training, validation, and test
-
-# In[ ]:
-
-
-from sklearn.model_selection import train_test_split
-
 SEED = 77 
 
 file_huron = "final_HURON.csv"
@@ -280,10 +227,6 @@ def encode_target(df):
 
 df_huron = encode_target(df_huron)
 df_simc = encode_target(df_simc)
-
-
-# In[ ]:
-
 
 def split_and_save(df, lake_name):
     print(f"\nSplitting dataset for {lake_name}...")
