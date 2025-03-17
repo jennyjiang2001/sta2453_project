@@ -1,3 +1,21 @@
+"""
+This script trains and evaluates the Random Forest classification model for two different lakes: Huron and Simcoe.
+
+### Steps:
+1. Define the function `train_and_evaluate()`:
+   - Load selected predictors for each lake.
+   - Load training, validation, and test datasets.
+   - Handle missing values by filling them with the mean.
+   - Train a Random Forest model with given hyperparameters.
+   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, and F1-score.
+   - Visualize feature importance.
+2. Run the model training and evaluation for both lakes with given hyperparameters.
+
+### Output:
+- Print MSE, Accuracy, and F1-score for validation and test sets.
+- Display a feature importance bar plot for the top 10 most influential features in the model.
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -71,9 +89,16 @@ def train_and_evaluate(lake_name, best_params):
     feature_importance_df = pd.DataFrame({'Feature': selected_predictors, 'Importance': feature_importance})
     feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
 
-    # Plot feature importance
+    # Plot feature importance 
     plt.figure(figsize=(10, 6))
-    sns.barplot(x=feature_importance_df['Importance'][:10], y=feature_importance_df['Feature'][:10], palette='viridis')
+    sns.barplot(x="Importance", 
+                y="Feature", 
+                data=feature_importance_df[:10], 
+                hue="Feature", 
+                palette="viridis", 
+                dodge=False, 
+                legend=False) 
+
     plt.xlabel('Feature Importance Score')
     plt.ylabel('Features')
     plt.title(f'Top 10 Important Features in Random Forest ({lake_name})')
@@ -89,17 +114,11 @@ if __name__ == "__main__":
 #         "n_estimators": [50, 100, 200, 250, 300, 350, 400, 500],
 #         "max_depth": [5, 10, 15, 20, 25, 30]
 #     }
-    
-    huron_best_params = {"n_estimators": 250, "max_depth": 20}
+
+    huron_best_params = {"n_estimators": 350, "max_depth": 25}
     print("\nEvaluating HURON...")
     train_and_evaluate("HURON", huron_best_params)
 
     simc_best_params = {"n_estimators": 400, "max_depth": 25}
-
     print("\nEvaluating SIMC...")
     train_and_evaluate("SIMC", simc_best_params)
-
-
-
-
-
