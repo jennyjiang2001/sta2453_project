@@ -1,9 +1,28 @@
+"""
+This script trains and evaluates an XGBoost classification model for two different lakes: Huron and Simcoe.
+
+### Steps:
+1. Define the function `train_xgb_for_lakes()`:
+   - Load selected predictors for each lake
+   - Load training, validation, and test datasets.
+   - Handle missing values by filling them with the mean.
+   - Convert datasets into DMatrix format for XGBoost.
+   - Train an XGBoost model with best hyperparameters.
+   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, and F1-score.
+   - Visualize feature importance.
+2. Run the model training and evaluation for both lakes.
+
+### Output:
+- Print MSE, Accuracy, and F1-score for validation and test sets.
+- Display a feature importance bar plot for the top 10 most influential features in the model.
+"""
+
 import pandas as pd
 import numpy as np
-import xgboost as xgb
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import accuracy_score, f1_score, mean_squared_error
+import xgboost as xgb
+from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
 
 def train_xgb_for_lakes(lake_name):
     
@@ -51,13 +70,13 @@ def train_xgb_for_lakes(lake_name):
 
     # Best hyperparameters
     best_params = {
-        "HURON": {"eta": 0.05, "max_depth": 7, "subsample": 0.8, "colsample_bytree": 0.7},
-        "SIMC": {"eta": 0.09, "max_depth": 10, "subsample": 1.0, "colsample_bytree": 0.8}
+        "HURON": {"eta": 0.03, "max_depth": 9, "subsample": 0.8, "colsample_bytree": 0.9},
+        "SIMC": {"eta": 0.05, "max_depth": 10, "subsample": 0.9, "colsample_bytree": 0.8}
     }
 
     params = {
-        "objective": "binary:logistic",  # Binary classification
-        "eval_metric": "logloss",  # Log-loss for binary classification
+        "objective": "binary:logistic",  
+        "eval_metric": "logloss",  
         **best_params[lake_name]
     }
 
@@ -66,7 +85,7 @@ def train_xgb_for_lakes(lake_name):
 
     # Predictions
     y_pred = model.predict(dtest)
-    y_pred_binary = (y_pred > 0.5).astype(int)  # Convert probabilities to binary class labels
+    y_pred_binary = (y_pred > 0.5).astype(int)  
 
     # Metrics
     accuracy = accuracy_score(output_test, y_pred_binary)
@@ -79,13 +98,18 @@ def train_xgb_for_lakes(lake_name):
     print(f"Mean Squared Error: {mse:.4f}")
 
     # Feature Importance Visualization
-    feature_importance = model.get_score(importance_type="weight")  # Get importance scores
+    feature_importance = model.get_score(importance_type="weight")  
     feature_importance_df = pd.DataFrame({'Feature': feature_importance.keys(), 'Importance': feature_importance.values()})
     feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
 
     # Plot feature importance
     plt.figure(figsize=(10, 6))
-    sns.barplot(x=feature_importance_df['Importance'][:10], y=feature_importance_df['Feature'][:10], palette='viridis')
+    sns.barplot(x=feature_importance_df['Importance'][:10], 
+                y=feature_importance_df['Feature'][:10], 
+                hue=feature_importance_df['Feature'][:10],  
+                palette='viridis', 
+                dodge=False, 
+                legend=False)
     plt.xlabel('Feature Importance Score')
     plt.ylabel('Features')
     plt.title(f'Top 10 Important Features in XGBoost ({lake_name})')
@@ -95,14 +119,14 @@ def train_xgb_for_lakes(lake_name):
     return model
 
 if __name__ == "__main__":
-
+    
 #     grid_search
 #     param_grid = {
 #             "eta": [0.03, 0.05, 0.07, 0.09, 0.1],
 #             "max_depth": [5, 6, 7, 8, 9, 10], 
 #             "subsample": [0.7, 0.8, 0.9, 1.0], 
 #             "colsample_bytree": [0.7, 0.8, 0.9, 1.0]
-#         }
+#         }  
     
     print("\nTraining for HURON...")
     model_huron = train_xgb_for_lakes("HURON")
