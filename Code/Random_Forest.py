@@ -1,5 +1,5 @@
 """
-This script trains and evaluates the Random Forest classification model for two different lakes: Huron and Simcoe.
+This script trains and evaluates an Random Forest classification model for two different lakes: Huron and Simcoe.
 
 ### Steps:
 1. Define the function `train_and_evaluate()`:
