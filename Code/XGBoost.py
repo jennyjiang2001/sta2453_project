@@ -1,7 +1,7 @@
 """
 This script trains and evaluates an XGBoost classification model for two different lakes: Huron and Simcoe.
 
-### Steps:
+Steps:
 1. Define the function `train_xgb_for_lakes()`:
    - Load selected predictors for each lake
    - Load training, validation, and test datasets.
@@ -12,7 +12,7 @@ This script trains and evaluates an XGBoost classification model for two differe
    - Visualize feature importance.
 2. Run the model training and evaluation for both lakes.
 
-### Output:
+Output:
 - Print MSE, Accuracy, and F1-score for validation and test sets.
 - Display a feature importance bar plot for the top 10 most influential features in the model.
 """
