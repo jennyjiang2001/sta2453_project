@@ -1,7 +1,7 @@
 """
 This script trains and evaluates a Neural Network model for two different lakes: Huron and Simcoe.
 
-### Steps:
+Steps:
 1. Define the function `train_and_evaluate_nn()`:
    - Load selected predictors for each lake.
    - Load training, validation, and test datasets.
@@ -11,7 +11,7 @@ This script trains and evaluates a Neural Network model for two different lakes:
    - Evaluate model performance using Mean Squared Error (MSE), Accuracy, and F1-score.
 2. Run the model training and evaluation for both lakes with the best hyperparameters.
 
-### Output:
+Output:
 - Print MSE, Accuracy, and F1-score for validation and test sets.
 """
 
@@ -162,6 +162,12 @@ def train_and_evaluate_nn(lake_name, best_params, epochs=100, lr=0.001, batch_si
     return mse_validate, mse_test, accuracy, f1
 
 if __name__ == "__main__":
+
+#     grid search
+#     param_grid = {
+#         "hidden_num_list": [1, 2, 4, 6, 8, 10],
+#         "hidden_size_list": [16, 32, 64, 128, 256, 512]
+#     }
     
     huron_best_params = {"hidden_num": 2, "hidden_size": 64}
     print("\nEvaluating HURON...")
