@@ -2,7 +2,7 @@ This folder contains the Exploratory Data Analysis (EDA) materials for this proj
 
 - `EDA_CSV_graphs_HURON.ipynb` & `EDA_CSV_graphs_SIMC.ipynb`: Generate histograms, density plots, and boxplots for key variables.
 
-- `EDA_CSV_clustering_HURON.ipynb` & `EDA_CSV_clustering_SIMC.ipynb`: Perform hierarchical clustering on selected features to identify correlations and redundancies.
+- `EDA_CSV_clustering_HURON.ipynb` & `EDA_CSV_clustering_SIMC.ipynb`: Perform hierarchical clustering to identify correlations and redundancies.
 
 - `EDA_CSV_linear_HURON.ipynb` & `EDA_CSV_linear_SIMC.ipynb`: Examine linear relationships using OLS and logistic regression.
 
