@@ -1,18 +1,22 @@
+pip install torch torchvision torchaudio
+
 """
 This script trains and evaluates a Neural Network model for two different lakes: Huron and Simcoe.
 
-Steps:
+### Steps:
 1. Define the function `train_and_evaluate_nn()`:
    - Load selected predictors for each lake.
    - Load training, validation, and test datasets.
    - Handle missing values by filling them with the mean.
    - Normalize features using StandardScaler.
    - Train a fully connected neural network with the given hyperparameters.
-   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, and F1-score.
+   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, F1-score, and AUROC.
+   - Visualize feature importance.
 2. Run the model training and evaluation for both lakes with the best hyperparameters.
 
-Output:
-- Print MSE, Accuracy, and F1-score for validation and test sets.
+### Output:
+- Print MSE, Accuracy, F1-score, and AUROC for test sets.
+- Display a feature importance bar plot for the top 10 most influential features in the model.
 """
 
 import pandas as pd
@@ -20,9 +24,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import matplotlib.pyplot as plt
+import seaborn as sns
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score
+
 
 class PHQModel(nn.Module):
     """
@@ -33,7 +41,6 @@ class PHQModel(nn.Module):
         
         self.hidden_layers = nn.ModuleList()
         
-        # Add hidden layers
         if hidden_num > 0:
             self.hidden_layers.append(nn.Linear(input_size, hidden_size))
             for _ in range(hidden_num - 1):
@@ -55,25 +62,37 @@ class PHQModel(nn.Module):
         x = self.output_layer(x)
         return x.view(-1, 1)
 
+def compute_feature_importance(model, predictors):
+    """
+    Compute feature importance using the first hidden layer's weights.
+    """
+    first_layer_weights = model.hidden_layers[0].weight.detach().numpy()
+
+    feature_importance = np.mean(np.abs(first_layer_weights), axis=0)
+
+    feature_importance_df = pd.DataFrame({"Feature": predictors, "Importance": feature_importance})
+    feature_importance_df = feature_importance_df.sort_values(by="Importance", ascending=False)
+
+    return feature_importance_df
+
 def train_and_evaluate_nn(lake_name, best_params, epochs=100, lr=0.001, batch_size=32):
     """
     Trains and evaluates a neural network model for a given lake.
     """
-    # Define predictor variables for each lake
     predictors = {
         "HURON": [
             'Area..Filled.', 'Diameter..FD.', 'Length', 'Width', 'LON0', 'Transparency',
             'Volume..ESD.', 'MinDepth', 'LAT0', 'Aspect.Ratio', 'CiscoDen', 'Circularity',
             'WaterT', 'Intensity', 'Symmetry', 'Roughness', 'gdd2', 'CLOUD_PC', 'Geodesic.Length',
-            'Compactness', 'Elongation', 'Perimeter', 'Volume..ABD.', 'Edge.Gradient',
-            'Convex.Perimeter', 'Convexity', 'Fiber.Straightness', 'Fiber.Curl', 'PRECIP',
+            'Compactness', 'Elongation', 'Perimeter', 'Volume..ABD.', 'Edge.Gradient', 
+            'Convex.Perimeter', 'Convexity', 'Fiber.Straightness', 'Fiber.Curl', 'PRECIP', 
             'distshore', 'XANGLE'
         ],
         "SIMC": [
-            'Area..ABD.', 'LON0', 'Length', 'Width', 'MaxDepth', 'Transparency', 'Symmetry',
-            'WaterT', 'Aspect.Ratio', 'Diameter..ABD.', 'Compactness', 'Elongation', 'Roughness',
-            'Convex.Perimeter', 'Intensity', 'Fiber.Straightness', 'Circularity', 'Volume..ESD.',
-            'Volume..ABD.', 'gdd2', 'Perimeter', 'Geodesic.Length', 'Edge.Gradient', 'WhitefishDen',
+            'Area..ABD.', 'LON0', 'Length', 'Width', 'MaxDepth', 'Transparency', 'Symmetry', 
+            'WaterT', 'Aspect.Ratio', 'Diameter..ABD.', 'Compactness', 'Elongation', 'Roughness', 
+            'Convex.Perimeter', 'Intensity', 'Fiber.Straightness', 'Circularity', 'Volume..ESD.', 
+            'Volume..ABD.', 'gdd2', 'Perimeter', 'Geodesic.Length', 'Edge.Gradient', 'WhitefishDen', 
             'LAT0', 'XANGLE', 'PRECIP', 'distshore', 'Exposure', 'Convexity', 'Fiber.Curl'
         ]
     }
@@ -109,10 +128,8 @@ def train_and_evaluate_nn(lake_name, best_params, epochs=100, lr=0.001, batch_si
 
     # Create DataLoaders
     train_loader = DataLoader(TensorDataset(X_train_tensor, y_train_tensor), batch_size=batch_size, shuffle=True)
-    validate_loader = DataLoader(TensorDataset(X_validate_tensor, y_validate_tensor), batch_size=batch_size)
-    test_loader = DataLoader(TensorDataset(X_test_tensor, y_test_tensor), batch_size=batch_size)
 
-    # Initialize model with best hyperparameters
+    # Initialize model
     print(f"\nTraining Neural Network for {lake_name} with {best_params}...")
     model = PHQModel(input_size=X_train.shape[1], hidden_num=best_params["hidden_num"], hidden_size=best_params["hidden_size"])
     
@@ -129,50 +146,43 @@ def train_and_evaluate_nn(lake_name, best_params, epochs=100, lr=0.001, batch_si
             loss.backward()
             optimizer.step()
 
-    # Evaluate on validation set
-    model.eval()
-    y_validate_pred = []
-    y_validate_true = []
-    with torch.no_grad():
-        for inputs, labels in validate_loader:
-            preds = model(inputs).numpy().flatten()
-            y_validate_pred.extend(preds)
-            y_validate_true.extend(labels.numpy().flatten())
-
-    mse_validate = mean_squared_error(y_validate_true, y_validate_pred)
-
     # Evaluate on test set
-    y_test_pred = []
-    y_test_true = []
-    with torch.no_grad():
-        for inputs, labels in test_loader:
-            preds = model(inputs).numpy().flatten()
-            y_test_pred.extend(preds)
-            y_test_true.extend(labels.numpy().flatten())
-
-    mse_test = mean_squared_error(y_test_true, y_test_pred)
-    accuracy = accuracy_score(np.round(y_test_true), np.round(y_test_pred))
-    f1 = f1_score(np.round(y_test_true), np.round(y_test_pred), average="weighted")
+    model.eval()
+    y_test_pred = model(X_test_tensor).detach().numpy().flatten()
+    mse_test = mean_squared_error(y_test_tensor.numpy(), y_test_pred)
+    accuracy = accuracy_score(np.round(y_test_tensor.numpy()), np.round(y_test_pred))
+    f1 = f1_score(np.round(y_test_tensor.numpy()), np.round(y_test_pred), average="weighted")
+    auroc = roc_auc_score(y_test_tensor.numpy(), y_test_pred)
 
     print(f"{lake_name} Test Set Evaluation:")
     print(f"Accuracy: {accuracy:.4f}")
     print(f"F1 Score: {f1:.4f}")
-    print(f"Mean Squared Error: {mse_test:.4f}\n")
+    print(f"Mean Squared Error: {mse_test:.4f}")
+    print(f"AUROC: {auroc:.4f}\n")
 
-    return mse_validate, mse_test, accuracy, f1
+    # Compute Feature Importance
+    feature_importance_df = compute_feature_importance(model, predictors[lake_name])
+
+    #Plot feature importance
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x="Importance", 
+                y="Feature", 
+                data=feature_importance_df[:10], 
+                hue="Feature", 
+                palette="viridis", 
+                dodge=False, 
+                legend=False) 
+
+    plt.xlabel('Feature Importance Score')
+    plt.ylabel('Features')
+    plt.title(f'Top 10 Important Features in Neural Network ({lake_name})')
+    plt.gca().invert_yaxis()
+    plt.show()
+    
 
 if __name__ == "__main__":
-
-#     grid search
-#     param_grid = {
-#         "hidden_num_list": [1, 2, 4, 6, 8, 10],
-#         "hidden_size_list": [16, 32, 64, 128, 256, 512]
-#     }
-    
-    huron_best_params = {"hidden_num": 2, "hidden_size": 64}
     print("\nEvaluating HURON...")
-    train_and_evaluate_nn("HURON", huron_best_params)
+    train_and_evaluate_nn("HURON", {"hidden_num": 2, "hidden_size": 64})
 
-    simc_best_params = {"hidden_num": 2, "hidden_size": 128}
     print("\nEvaluating SIMC...")
-    train_and_evaluate_nn("SIMC", simc_best_params)
+    train_and_evaluate_nn("SIMC", {"hidden_num": 2, "hidden_size": 128})
