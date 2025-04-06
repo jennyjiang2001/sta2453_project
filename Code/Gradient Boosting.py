@@ -69,7 +69,6 @@ def train_gbr_for_lakes(lake_name):
     
     # Metrics
     mse = mean_squared_error(output_test, y_pred)
-    r2 = r2_score(output_test, y_pred)
     accuracy = accuracy_score(output_test, y_pred_binary)
     f1 = f1_score(output_test, y_pred_binary)
     auroc = roc_auc_score(output_test, y_pred)
