@@ -1,19 +1,21 @@
+!pip install xgboost
+
 """
 This script trains and evaluates an XGBoost classification model for two different lakes: Huron and Simcoe.
 
-Steps:
+### Steps:
 1. Define the function `train_xgb_for_lakes()`:
    - Load selected predictors for each lake
    - Load training, validation, and test datasets.
    - Handle missing values by filling them with the mean.
    - Convert datasets into DMatrix format for XGBoost.
    - Train an XGBoost model with best hyperparameters.
-   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, and F1-score.
+   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, F1-score, and AUROC.
    - Visualize feature importance.
 2. Run the model training and evaluation for both lakes.
 
-Output:
-- Print MSE, Accuracy, and F1-score for validation and test sets.
+### Output:
+- Print MSE, Accuracy, F1-score, and AUROC for test sets.
 - Display a feature importance bar plot for the top 10 most influential features in the model.
 """
 
@@ -23,6 +25,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import xgboost as xgb
 from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
+from sklearn.metrics import roc_auc_score
 
 def train_xgb_for_lakes(lake_name):
     
@@ -91,11 +94,15 @@ def train_xgb_for_lakes(lake_name):
     accuracy = accuracy_score(output_test, y_pred_binary)
     f1 = f1_score(output_test, y_pred_binary)
     mse = mean_squared_error(output_test, y_pred)
+    
+    # Calculate AUROC
+    auroc = roc_auc_score(output_test, y_pred)
 
     print(f"{lake_name} Test Set Evaluation:")
-    print(f"Accuracy: {accuracy:.4f}")
-    print(f"F1 Score: {f1:.4f}")
-    print(f"Mean Squared Error: {mse:.4f}")
+    print(f"Mean Squared Error: {mse:.6f}")
+    print(f"Accuracy: {accuracy:.6f}")
+    print(f"F1 Score: {f1:.6f}")
+    print(f"{lake_name} - AUROC (Test): {auroc:.6f}\n")
 
     # Feature Importance Visualization
     feature_importance = model.get_score(importance_type="weight")  
