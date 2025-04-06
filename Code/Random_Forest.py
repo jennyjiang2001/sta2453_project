@@ -1,18 +1,18 @@
 """
-This script trains and evaluates an Random Forest classification model for two different lakes: Huron and Simcoe.
+This script trains and evaluates the Random Forest classification model for two different lakes: Huron and Simcoe.
 
-Steps:
+### Steps:
 1. Define the function `train_and_evaluate()`:
    - Load selected predictors for each lake.
    - Load training, validation, and test datasets.
    - Handle missing values by filling them with the mean.
    - Train a Random Forest model with given hyperparameters.
-   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, and F1-score.
+   - Evaluate model performance using Mean Squared Error (MSE), Accuracy, F1-score, and AUROC.
    - Visualize feature importance.
 2. Run the model training and evaluation for both lakes with given hyperparameters.
 
-Output:
-- Print MSE, Accuracy, and F1-score for validation and test sets.
+### Output:
+- Print MSE, Accuracy, F1-score, and AUROC for test sets.
 - Display a feature importance bar plot for the top 10 most influential features in the model.
 """
 
@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import mean_squared_error, accuracy_score, f1_score
+from sklearn.metrics import roc_auc_score
 
 def train_and_evaluate(lake_name, best_params):
     
@@ -79,12 +80,16 @@ def train_and_evaluate(lake_name, best_params):
     accuracy = accuracy_score(output_test, y_test_pred)
     f1 = f1_score(output_test, y_test_pred, average="weighted")  
 
-    print(f"{lake_name} - MSE (Validation): {mse_validate:.6f}")
+    # Calculate AUROC
+    y_test_proba = rf_model.predict_proba(input_test)[:, 1]
+    auroc = roc_auc_score(output_test, y_test_proba)
+    
     print(f"{lake_name} - MSE (Test): {mse_test:.6f}")
     print(f"{lake_name} - Accuracy (Test): {accuracy:.6f}")
     print(f"{lake_name} - F1 Score (Test): {f1:.6f}\n")
-
-    # Feature Importance Visualization
+    print(f"{lake_name} - AUROC (Test): {auroc:.6f}\n")
+    
+     # Feature Importance Visualization
     feature_importance = rf_model.feature_importances_
     feature_importance_df = pd.DataFrame({'Feature': selected_predictors, 'Importance': feature_importance})
     feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
@@ -105,7 +110,7 @@ def train_and_evaluate(lake_name, best_params):
     plt.gca().invert_yaxis()
     plt.show()
     
-    return mse_validate, mse_test, accuracy, f1
+    return mse_test, accuracy, f1, auroc
 
 if __name__ == "__main__":
     
