@@ -10,13 +10,13 @@ With the goal of improving efficiency and accuracy in zooplankton species classi
 - Random Forest
 - Gradient Boosting
 - XGBoost
-- Neural Network (Fully Connected)
+- Neural Network 
 
 Each model was evaluated using:
 
-- **F1 Score** (prioritized)
-- **AUROC**
-- **Accuracy**
+- F1 Score
+- AUROC
+- Accuracy
 
 The **Neural Network** demonstrated the most balanced and consistent performance across both lakes and was chosen as the final model.
 
