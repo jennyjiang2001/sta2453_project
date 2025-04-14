@@ -18,17 +18,16 @@ Each model was evaluated using:
 - AUROC
 - Accuracy
 
-The **Neural Network** demonstrated the most balanced and consistent performance across both lakes and was chosen as the final model.
-
 ---
 
-## Key Results
+## Results
 - Lake Huron:
 ![STA2453-Huron](https://github.com/user-attachments/assets/6dfe039e-c83e-459d-83ad-51f906e6ee71)
 
 - Lake Simcoe:
 ![STA2453-Simcoe](https://github.com/user-attachments/assets/ce501e74-2db3-4449-b1cc-dbee146d84a1)
 
+The **Neural Network** demonstrated the most balanced and consistent performance across both lakes and was chosen as the final model.
 
 
 
